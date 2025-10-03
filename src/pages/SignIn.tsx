@@ -24,33 +24,48 @@ const SignIn = () => {
     }, 1000);
   };
 
-  const formatPhoneNumber = (value: string) => {
+  const formatToE164 = (value: string): string => {
+    // Remove all non-digit characters
     const cleaned = value.replace(/\D/g, "");
-    if (cleaned.length <= 1) return cleaned;
-    if (cleaned.length <= 4) return `+1 (${cleaned.slice(1)}`;
-    if (cleaned.length <= 7) return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4)}`;
-    return `+1 (${cleaned.slice(1, 4)}) ${cleaned.slice(4, 7)}-${cleaned.slice(7, 11)}`;
+    
+    // Handle different formats
+    if (cleaned.length === 10) {
+      // 10 digits: assume US number, add +1
+      return `+1${cleaned}`;
+    } else if (cleaned.length === 11 && cleaned.startsWith("1")) {
+      // 11 digits starting with 1: already has country code
+      return `+${cleaned}`;
+    } else if (cleaned.startsWith("1") && cleaned.length > 11) {
+      // More than 11 digits starting with 1: take first 11
+      return `+${cleaned.slice(0, 11)}`;
+    } else if (cleaned.length > 10) {
+      // More than 10 digits not starting with 1: take last 10 and add +1
+      return `+1${cleaned.slice(-10)}`;
+    }
+    
+    // Invalid or incomplete
+    return "";
+  };
+
+  const isValidPhoneNumber = (value: string): boolean => {
+    const cleaned = value.replace(/\D/g, "");
+    return cleaned.length === 10 || (cleaned.length === 11 && cleaned.startsWith("1"));
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formatted = formatPhoneNumber(e.target.value);
-    setPhone(formatted);
-  };
-
-  const getCleanPhone = (formatted: string) => {
-    return "+1" + formatted.replace(/\D/g, "").slice(1);
+    setPhone(e.target.value);
   };
 
   const handleSendCode = async () => {
-    const cleanPhone = getCleanPhone(phone);
-    if (cleanPhone.length < 12) {
+    const e164Phone = formatToE164(phone);
+    if (!e164Phone) {
       toast.error("Please enter a valid phone number");
       return;
     }
 
     setLoading(true);
     const { error } = await supabase.auth.signInWithOtp({
-      phone: cleanPhone,
+      phone: e164Phone,
     });
 
     if (error) {
@@ -72,7 +87,7 @@ const SignIn = () => {
 
     setLoading(true);
     const { data, error } = await supabase.auth.verifyOtp({
-      phone: getCleanPhone(phone),
+      phone: formatToE164(phone),
       token: otp,
       type: "sms",
     });
@@ -154,15 +169,14 @@ const SignIn = () => {
               </Button>
               <Input
                 type="tel"
-                placeholder="+1 (___) ___-____"
+                placeholder="4155552671 or (415) 555-2671"
                 value={phone}
                 onChange={handlePhoneChange}
-                maxLength={18}
                 className="text-lg"
               />
               <Button 
                 onClick={handleSendCode}
-                disabled={loading || phone.length < 18}
+                disabled={loading || !isValidPhoneNumber(phone)}
                 size="lg"
                 className="w-full"
               >
