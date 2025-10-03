@@ -3,9 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Auth from "./pages/Auth";
+import Welcome from "./pages/Welcome";
+import SignIn from "./pages/SignIn";
+import OnboardingSlides from "./pages/OnboardingSlides";
+import FirstPrompt from "./pages/FirstPrompt";
+import ProfileSetup from "./pages/ProfileSetup";
 import Feed from "./pages/Feed";
 import DailyPrompt from "./pages/DailyPrompt";
 import Profile from "./pages/Profile";
@@ -23,7 +26,14 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/auth" element={<Auth />} />
+          {/* Onboarding Flow */}
+          <Route path="/welcome" element={<Welcome />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/onboarding" element={<OnboardingSlides />} />
+          <Route path="/first-prompt" element={<FirstPrompt />} />
+          <Route path="/profile-setup" element={<ProfileSetup />} />
+          
+          {/* Main App */}
           <Route
             path="/"
             element={

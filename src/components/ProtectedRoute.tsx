@@ -32,7 +32,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!authenticated) {
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/welcome" replace />;
   }
 
   return <>{children}</>;
