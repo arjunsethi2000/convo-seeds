@@ -16,7 +16,6 @@ import Matches from "./pages/Matches";
 import Chat from "./pages/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
 import BottomNav from "./components/BottomNav";
-import "@/utils/supabaseTest";
 
 const queryClient = new QueryClient();
 
